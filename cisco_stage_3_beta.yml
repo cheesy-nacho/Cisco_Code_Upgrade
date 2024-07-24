@@ -1,0 +1,124 @@
+---
+## Reload switch if checks are met. Wait for reload and validate new version. 
+## This is to replace cisco_stage_3
+
+- name: Begin Reload and Validation
+  hosts: office1
+  connection: local
+  gather_facts: false
+  ignore_unreachable: true
+  vars_files:
+    - vault.yml
+  vars:
+    ansible_network_cli_ssh_type: libssh
+    cli:
+      username: "{{ username }}"
+      password: "{{ password }}"
+## Variables for new code
+    upgrade_ios_version: 15.2(7)E10
+    target_image: c2960x-universalk9-mz.152-7.E7.bin
+    switch_model: WS-C2960X  #be more specific for longer match
+
+
+  tasks:
+## Get hostname
+    - name: Get hostname
+      cisco.ios.ios_hostname:
+        state: gathered
+      register: device_hostname
+
+## Get current version
+    - name: Get Version
+      cisco.ios.ios_facts:
+        gather_subset: hardware
+      register: version
+      
+## Check hardware model
+    - block:
+      - name: Check switch model
+        debug:
+          msg: "Switch model: {{ version.ansible_facts.ansible_net_model }} -- Wrong switch model, skipping"
+      - meta: end_host
+      when: switch_model not in ansible_net_model
+
+## Check if switch is already upgraded 
+    - block:
+      - name: Check if switch is already upgraded
+        debug:
+          msg: "Current version: {{ version.ansible_facts.ansible_net_version }} -- Switch is already upgraded"
+      - meta: end_host
+      when: ansible_net_version == upgrade_ios_version
+
+## Is image present
+    - name: Is Image present
+      cisco.ios.ios_command:
+        commands: "dir all-filesystems | in {{ target_image }}" 
+      register: image_present
+
+## Validate boot var
+    - name: Check boot path
+        ios_command:
+        commands: 'show boot | i BOOT'
+      register: bootvar
+
+## Proceed with relaod
+    - name: Reload the Device 
+      block:
+        cisco.ios.ios_command: 
+          command: reload
+          prompt: 
+            - confirm
+          answer: 
+            - 'n' #Change to 'y' when ready to test
+        when: target_image in bootvar.stdout[0]
+      when: target_image in image_present.stdout[0]
+
+## Stop play book if not ready for reload
+    - name: Do not reload the Device
+      block:
+        cisco.ios.ios_command: 
+          debug:
+            msg: "Host: {{ device_hostname.gathered.hostname }} ---------  Not ready for reload  --------- "
+        when: target_image not in bootvar.stdout[0]
+      when: target_image not in image_present.stdout[0]
+
+
+## Reset connection and wait for switch to come back
+    - name: Wait for device to come back online
+      wait_for_connection:
+        delay: 180
+        sleep: 60
+        timeout: 900
+
+## Gather new facts
+    - name: Gather new facts
+      cisco.ios.ios_facts:
+        gather_subset: hardware
+      register: version 
+
+## Write successful upgrade to file 
+    - block:
+      - name: Image is Upgraded
+        debug:
+          msg: "Host: {{ device_hostname.gathered.hostname }} ---------  SUCCESS: Code Upgraded  --------- - Version: {{ version.ansible_facts.ansible_net_version }}"
+      - lineinfile:
+          path: "/home/HT_Ansible_Demo/successful_upgrade.txt"
+          regexp: "\\s{{ device_hostname.gathered.hostname }}$"
+          line: "Successful Upgrade - Host: {{ device_hostname.gathered.hostname }} - Version: {{ ansible_net_version }}"
+        delegate_to: localhost
+      when: ansible_net_version == upgrade_ios_version
+
+## Write unsuccessful upgrade to file
+    - block:
+      - name: Image is NOT Upgraded
+        debug:
+          msg: "Host: {{ device_hostname.gathered.hostname }} !!!!!!!!!!!  WARNING: Code is NOT Upgraded  !!!!!!!!!!! - Version: {{ version.ansible_facts.ansible_net_version }}"
+      - lineinfile: 
+          path: "/home/HT_Ansible_Demo/failed_upgrade.txt"
+          regexp: "\\s{{ device_hostname.gathered.hostname }}$"
+          line: "Failed Upgrade - Host: {{ device_hostname.gathered.hostname }} - Version: {{ ansible_net_version }}"
+        delegate_to: localhost
+      when: ansible_net_version != upgrade_ios_version
+
+...
+     

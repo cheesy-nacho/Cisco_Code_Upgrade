@@ -1,0 +1,120 @@
+---
+## Ansible Playbook to copy image, change boot variable, save config
+## Will work with 2960x model switches 
+
+- name: Begin Code Upload
+  hosts: office
+  connection: local
+  gather_facts: false
+  ignore_unreachable: true
+  vars_files:
+    - vault.yml
+  vars:
+    ansible_network_cli_ssh_type: libssh
+    cli:
+      username: "{{ username }}"
+      password: "{{ password }}"
+## Variables used for upgrade      
+    upgrade_ios_version: 15.2(7)E10
+    ios_md5: 1b3781db619dcce6a2677628acc15430
+    ios_size_kb: 26787 # Must be defined in kb
+    target_image: c2960x-universalk9-mz.152-7.E7.bin
+    flash_dir: 'flash:' # e.g: 'bootflash' or 'flash:'
+    switch_model: WS-C2960X
+  
+  tasks:
+
+## Get current version
+    - name: Get Version
+      cisco.ios.ios_facts:
+        gather_subset: hardware
+      register: version
+
+## Check hardware model
+    - block:
+      - name: Check switch model
+        debug:
+          msg: "Switch model: {{ version.ansible_facts.ansible_net_model }} -- Wrong switch model, skipping host"
+      - meta: end_host
+      when: switch_model not in ansible_net_model
+
+
+## Check if switch is already upgraded 
+    - block:
+      - name: Switch current version
+        debug:
+          msg: "Current version: {{ version.ansible_facts.ansible_net_version }} -- Switch is already upgraded"
+      - meta: end_host
+      when: ansible_net_version == upgrade_ios_version
+
+
+## Is image present
+    - name: Is Image present
+      cisco.ios.ios_command:
+        #commands: "dir {{ flash_dir }} | inc {{ target_image }}"
+        commands: "dir all-filesystems | in {{ target_image }}" #testing if this is a better solution
+      register: image_present
+ 
+
+## Check disk space. Place book will stop if there isn't sufficent disk space. 
+    - block:
+      - name: Check flash space for upload
+        debug:
+          msg: "There is not enough space left on the device's flash...stopping the upgrade!!!"
+      - meta: end_host
+      when:  ios_size_kb > ansible_net_filesystems_info['flash:'].spacefree_kb
+
+
+## Enable SCP
+    - name: Enable SCP on switch
+      cisco.ios.ios_config: 
+        lines: 
+          - ip scp server enable
+      when: image_present.stdout[0] == ""
+
+## Copy Image
+    - name: Copy Image // This could take a few minutes.
+      net_put: 
+        src: "/home/eislas/HT_Ansible_Demo/images/{{ target_image }}"
+        dest: "flash:/{{ target_image }}"
+      vars:
+        ansible_command_timeout: 600
+      when: image_present.stdout[0] == ""
+      
+## Verify MD5
+    - name: Image MD5 File Validation
+      cisco.ios.ios_command:
+        commands: 
+          - "verify /md5 {{ flash_dir }}{{ target_image }}"
+        wait_for: 
+          - result[0] contains =
+      vars:
+        ansible_command_timeout: 40
+      register: image_validation_result
+      when: target_image in image_present.stdout[0]
+
+## Debug for MD5 validation 
+    - name: MD5 Validation Valid
+      debug:
+        msg: "MD5 Is valid"
+      when: image_validation_result.stdout[0].split(' = ')[1] == ios_md5
+
+    - block:
+      - name: MD5 Validation Invalid
+        debug:
+          msg: "MD5 is Invalid, Stopping upgrade !!"
+      - meta: end_host
+      when: image_validation_result.stdout[0].split(' = ')[1] != ios_md5
+
+
+## Change the Boot Variable to the new image 
+    - block:
+      - name: Change Boot Variable to new image 
+        cisco.ios.ios_config:
+          lines:
+            - boot system switch all {{ flash_dir }}/{{ target_image }}
+          save_when: always
+        when: target_image in image_present.stdout[0]
+      when: image_validation_result.stdout[0].split(' = ')[1] == ios_md5
+
+...

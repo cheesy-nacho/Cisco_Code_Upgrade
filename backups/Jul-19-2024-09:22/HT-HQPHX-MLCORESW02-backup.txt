@@ -1,0 +1,718 @@
+Building configuration...
+
+Current configuration : 11109 bytes
+!
+! Last configuration change at 15:02:12 MST Thu Jul 18 2024 by eislas
+! NVRAM config last updated at 15:02:13 MST Thu Jul 18 2024 by eislas
+!
+version 15.2
+no service pad
+service tcp-keepalives-out
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+service sequence-numbers
+!
+hostname HT-HQPHX-MLCORESW02
+!
+boot-start-marker
+boot-end-marker
+!
+logging buffered informational
+!
+username breakglass privilege 15 secret 9 $9$lPrwNMHMAQ.KGP$9J//yF7UO.d0Ww2dBn17RE4qe2CS3iBsikXPQ29417o
+username admin privilege 15 secret 9 $9$.KfH.VN1Rlnr69$CWecpyHCvrcSEv8VHRDe60Z7i8Rygc.AJ.IhkKmNrHg
+username hyetech privilege 15 secret 9 $9$FET5OyOIa1CNqf$.4ohE/pO8bdjVB54Z/hHc/ZScD/J0jwuGcozWMk8InY
+username nimda privilege 15 secret 9 $9$ZDy14evMstCp1v$BV9Q2/SHFY3Z1YNf2SaDQ85CSSrF9SEkf/27LzYeT22
+aaa new-model
+!
+!
+aaa group server tacacs+ ISE-TACACS
+ server name HT-ISE-01
+ server name HT-ISE-02
+!
+aaa authentication login default group ISE-TACACS local
+aaa authorization console
+aaa authorization exec default group ISE-TACACS local 
+aaa authorization commands 1 default group ISE-TACACS local if-authenticated 
+aaa authorization commands 15 default group ISE-TACACS local if-authenticated 
+aaa accounting exec default start-stop group ISE-TACACS
+aaa accounting commands 1 default start-stop group ISE-TACACS
+aaa accounting commands 15 default start-stop group ISE-TACACS
+!
+!
+!
+!
+!
+!
+aaa session-id common
+clock timezone MST -7 0
+switch 1 provision ws-c2960x-24pd-l
+!
+!
+!
+!
+no ip source-route
+!
+!
+no ip domain-lookup
+ip domain-name hyetechnetworks.com
+ip name-server 208.67.220.220
+ip name-server 208.67.222.222
+vtp domain hyetech
+vtp mode transparent
+!
+!
+!
+!
+!
+!
+no setup express
+!
+crypto pki trustpoint TP-self-signed-3176419072
+ enrollment selfsigned
+ subject-name cn=IOS-Self-Signed-Certificate-3176419072
+ revocation-check none
+ rsakeypair TP-self-signed-3176419072
+!
+!
+crypto pki certificate chain TP-self-signed-3176419072
+ certificate self-signed 01
+  3082022B 30820194 A0030201 02020101 300D0609 2A864886 F70D0101 05050030 
+  31312F30 2D060355 04031326 494F532D 53656C66 2D536967 6E65642D 43657274 
+  69666963 6174652D 33313736 34313930 3732301E 170D3139 30383232 31363031 
+  31365A17 0D323030 31303130 30303030 305A3031 312F302D 06035504 03132649 
+  4F532D53 656C662D 5369676E 65642D43 65727469 66696361 74652D33 31373634 
+  31393037 3230819F 300D0609 2A864886 F70D0101 01050003 818D0030 81890281 
+  8100A18F CD9657CA 0141A53D 664CBA49 76EAC44F 164AAA60 9C4DA43D 9D6B86F9 
+  244C0273 2BA63D07 9E2AC3F2 6352CAE0 00DE8B47 B3245EAA FD7A2453 B141E308 
+  C0A467B5 E4758218 ED933C1A 94982909 6D6D42A8 7DC05463 EA4B02BC 76F81B26 
+  2C97CB0E C385DF9D 4E6905E0 E18E847E D0EC4416 7E4B4749 4C6B7432 F6ABE075 
+  6E3B0203 010001A3 53305130 0F060355 1D130101 FF040530 030101FF 301F0603 
+  551D2304 18301680 14647BA6 0342F882 7274E6C6 1ACE0EC1 840E1B05 27301D06 
+  03551D0E 04160414 647BA603 42F88272 74E6C61A CE0EC184 0E1B0527 300D0609 
+  2A864886 F70D0101 05050003 81810078 70AF3FE1 87DF4D89 83ACBECE EDEA8E50 
+  1FA73B30 B0721DFA B1B9A267 0E558811 2AB1E193 D1171CCD 1CAD704A 4DA7EAE6 
+  9DB6E253 A7D25314 A440A707 5A612F08 B7095023 A4760783 5A09BEE9 6A83A5E3 
+  64B78B19 222A03FE 3E75B73A 3ABA1F7E 3E13E1A0 B960A2AD 55833CC9 27D74601 
+  B5A49331 49FFF912 875A4608 75682C
+  	quit
+!
+spanning-tree mode rapid-pvst
+spanning-tree extend system-id
+!
+!
+!
+!
+vlan internal allocation policy ascending
+!
+vlan 2
+ name wired
+!
+vlan 3
+ name voice
+!
+vlan 5
+ name wired_legacy
+!
+vlan 10
+ name wireless
+!
+vlan 69
+ name Stacy-VeloTest
+!
+vlan 500
+ name wireless-guest
+!
+vlan 900
+ name mgmt
+!
+vlan 999
+ name Wifi_bridge_VLAN
+!
+!
+! 
+!
+!
+!
+!
+!
+!
+!
+!
+interface FastEthernet0
+ no ip address
+ shutdown
+!
+interface GigabitEthernet1/0/1
+ switchport access vlan 2
+ switchport trunk allowed vlan 10,500
+ switchport trunk native vlan 10
+ switchport mode access
+ switchport voice vlan 3
+ spanning-tree portfast edge
+!
+interface GigabitEthernet1/0/2
+ switchport access vlan 2
+ switchport mode access
+ switchport voice vlan 3
+ spanning-tree portfast edge
+!
+interface GigabitEthernet1/0/3
+ switchport access vlan 2
+ switchport mode access
+ switchport voice vlan 3
+ spanning-tree portfast edge
+!
+interface GigabitEthernet1/0/4
+ switchport access vlan 2
+ switchport mode access
+ switchport voice vlan 3
+ spanning-tree portfast edge
+!
+interface GigabitEthernet1/0/5
+ switchport access vlan 2
+ switchport mode access
+ switchport voice vlan 3
+ spanning-tree portfast edge
+!
+interface GigabitEthernet1/0/6
+ switchport access vlan 2
+ switchport mode access
+ switchport voice vlan 3
+ spanning-tree portfast edge
+!
+interface GigabitEthernet1/0/7
+ switchport access vlan 2
+ switchport mode access
+ switchport voice vlan 3
+ spanning-tree portfast edge
+!
+interface GigabitEthernet1/0/8
+ switchport access vlan 2
+ switchport mode access
+ switchport voice vlan 3
+ spanning-tree portfast edge
+!
+interface GigabitEthernet1/0/9
+ switchport access vlan 2
+ switchport mode access
+ switchport voice vlan 3
+ spanning-tree portfast edge
+!
+interface GigabitEthernet1/0/10
+ switchport access vlan 2
+ switchport mode access
+ switchport voice vlan 3
+ spanning-tree portfast edge
+!
+interface GigabitEthernet1/0/11
+ switchport access vlan 2
+ switchport mode access
+ switchport voice vlan 3
+ spanning-tree portfast edge
+!
+interface GigabitEthernet1/0/12
+ switchport access vlan 2
+ switchport mode access
+ switchport voice vlan 3
+ spanning-tree portfast edge
+!
+interface GigabitEthernet1/0/13
+ switchport access vlan 2
+ switchport mode access
+ switchport voice vlan 3
+ spanning-tree portfast edge
+!
+interface GigabitEthernet1/0/14
+ switchport access vlan 2
+ switchport mode access
+ switchport voice vlan 3
+ spanning-tree portfast edge
+!
+interface GigabitEthernet1/0/15
+ switchport access vlan 2
+ switchport mode access
+ switchport voice vlan 3
+ spanning-tree portfast edge
+!
+interface GigabitEthernet1/0/16
+ switchport access vlan 2
+ switchport mode access
+ switchport voice vlan 3
+ spanning-tree portfast edge
+!
+interface GigabitEthernet1/0/17
+ switchport access vlan 2
+ switchport mode access
+ switchport voice vlan 3
+ spanning-tree portfast edge
+!
+interface GigabitEthernet1/0/18
+ switchport access vlan 2
+ switchport mode access
+ switchport voice vlan 3
+ spanning-tree portfast edge
+!
+interface GigabitEthernet1/0/19
+ switchport access vlan 2
+ switchport mode access
+ switchport voice vlan 3
+ spanning-tree portfast edge
+!
+interface GigabitEthernet1/0/20
+ switchport access vlan 2
+ switchport mode access
+ switchport voice vlan 3
+ spanning-tree portfast edge
+!
+interface GigabitEthernet1/0/21
+ switchport access vlan 2
+ switchport mode access
+ switchport voice vlan 3
+ spanning-tree portfast edge
+!
+interface GigabitEthernet1/0/22
+ description Ciena Lab Mgmt
+ switchport access vlan 5
+ switchport mode access
+ switchport voice vlan 3
+ spanning-tree portfast edge
+!
+interface GigabitEthernet1/0/23
+ description Ciena Lab Mgmt
+ switchport access vlan 5
+ switchport mode access
+ switchport voice vlan 3
+ spanning-tree portfast edge
+!
+interface GigabitEthernet1/0/24
+ switchport trunk allowed vlan 10,500
+ switchport trunk native vlan 10
+ switchport mode trunk
+ spanning-tree portfast edge trunk
+!
+interface GigabitEthernet1/0/25
+ switchport mode trunk
+!
+interface GigabitEthernet1/0/26
+!
+interface TenGigabitEthernet1/0/1Building configuration...
+
+Current configuration : 11109 bytes
+!
+! Last configuration change at 15:02:12 MST Thu Jul 18 2024 by eislas
+! NVRAM config last updated at 15:02:13 MST Thu Jul 18 2024 by eislas
+!
+version 15.2
+no service pad
+service tcp-keepalives-out
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+service sequence-numbers
+!
+hostname HT-HQPHX-MLCORESW02
+!
+boot-start-marker
+boot-end-marker
+!
+logging buffered informational
+!
+username breakglass privilege 15 secret 9 $9$lPrwNMHMAQ.KGP$9J//yF7UO.d0Ww2dBn17RE4qe2CS3iBsikXPQ29417o
+username admin privilege 15 secret 9 $9$.KfH.VN1Rlnr69$CWecpyHCvrcSEv8VHRDe60Z7i8Rygc.AJ.IhkKmNrHg
+username hyetech privilege 15 secret 9 $9$FET5OyOIa1CNqf$.4ohE/pO8bdjVB54Z/hHc/ZScD/J0jwuGcozWMk8InY
+username nimda privilege 15 secret 9 $9$ZDy14evMstCp1v$BV9Q2/SHFY3Z1YNf2SaDQ85CSSrF9SEkf/27LzYeT22
+aaa new-model
+!
+!
+aaa group server tacacs+ ISE-TACACS
+ server name HT-ISE-01
+ server name HT-ISE-02
+!
+aaa authentication login default group ISE-TACACS local
+aaa authorization console
+aaa authorization exec default group ISE-TACACS local 
+aaa authorization commands 1 default group ISE-TACACS local if-authenticated 
+aaa authorization commands 15 default group ISE-TACACS local if-authenticated 
+aaa accounting exec default start-stop group ISE-TACACS
+aaa accounting commands 1 default start-stop group ISE-TACACS
+aaa accounting commands 15 default start-stop group ISE-TACACS
+!
+!
+!
+!
+!
+!
+aaa session-id common
+clock timezone MST -7 0
+switch 1 provision ws-c2960x-24pd-l
+!
+!
+!
+!
+no ip source-route
+!
+!
+no ip domain-lookup
+ip domain-name hyetechnetworks.com
+ip name-server 208.67.220.220
+ip name-server 208.67.222.222
+vtp domain hyetech
+vtp mode transparent
+!
+!
+!
+!
+!
+!
+no setup express
+!
+crypto pki trustpoint TP-self-signed-3176419072
+ enrollment selfsigned
+ subject-name cn=IOS-Self-Signed-Certificate-3176419072
+ revocation-check none
+ rsakeypair TP-self-signed-3176419072
+!
+!
+crypto pki certificate chain TP-self-signed-3176419072
+ certificate self-signed 01
+  3082022B 30820194 A0030201 02020101 300D0609 2A864886 F70D0101 05050030 
+  31312F30 2D060355 04031326 494F532D 53656C66 2D536967 6E65642D 43657274 
+  69666963 6174652D 33313736 34313930 3732301E 170D3139 30383232 31363031 
+  31365A17 0D323030 31303130 30303030 305A3031 312F302D 06035504 03132649 
+  4F532D53 656C662D 5369676E 65642D43 65727469 66696361 74652D33 31373634 
+  31393037 3230819F 300D0609 2A864886 F70D0101 01050003 818D0030 81890281 
+  8100A18F CD9657CA 0141A53D 664CBA49 76EAC44F 164AAA60 9C4DA43D 9D6B86F9 
+  244C0273 2BA63D07 9E2AC3F2 6352CAE0 00DE8B47 B3245EAA FD7A2453 B141E308 
+  C0A467B5 E4758218 ED933C1A 94982909 6D6D42A8 7DC05463 EA4B02BC 76F81B26 
+  2C97CB0E C385DF9D 4E6905E0 E18E847E D0EC4416 7E4B4749 4C6B7432 F6ABE075 
+  6E3B0203 010001A3 53305130 0F060355 1D130101 FF040530 030101FF 301F0603 
+  551D2304 18301680 14647BA6 0342F882 7274E6C6 1ACE0EC1 840E1B05 27301D06 
+  03551D0E 04160414 647BA603 42F88272 74E6C61A CE0EC184 0E1B0527 300D0609 
+  2A864886 F70D0101 05050003 81810078 70AF3FE1 87DF4D89 83ACBECE EDEA8E50 
+  1FA73B30 B0721DFA B1B9A267 0E558811 2AB1E193 D1171CCD 1CAD704A 4DA7EAE6 
+  9DB6E253 A7D25314 A440A707 5A612F08 B7095023 A4760783 5A09BEE9 6A83A5E3 
+  64B78B19 222A03FE 3E75B73A 3ABA1F7E 3E13E1A0 B960A2AD 55833CC9 27D74601 
+  B5A49331 49FFF912 875A4608 75682C
+  	quit
+!
+spanning-tree mode rapid-pvst
+spanning-tree extend system-id
+!
+!
+!
+!
+vlan internal allocation policy ascending
+!
+vlan 2
+ name wired
+!
+vlan 3
+ name voice
+!
+vlan 5
+ name wired_legacy
+!
+vlan 10
+ name wireless
+!
+vlan 69
+ name Stacy-VeloTest
+!
+vlan 500
+ name wireless-guest
+!
+vlan 900
+ name mgmt
+!
+vlan 999
+ name Wifi_bridge_VLAN
+!
+!
+! 
+!
+!
+!
+!
+!
+!
+!
+!
+interface FastEthernet0
+ no ip address
+ shutdown
+!
+interface GigabitEthernet1/0/1
+ description -> User
+ switchport access vlan 2
+ switchport trunk allowed vlan 10,500
+ switchport trunk native vlan 10
+ switchport mode access
+ switchport voice vlan 3
+ spanning-tree portfast edge
+!
+interface GigabitEthernet1/0/2
+ description -> User
+ switchport access vlan 2
+ switchport mode access
+ switchport voice vlan 3
+ spanning-tree portfast edge
+!
+interface GigabitEthernet1/0/3
+ description -> User
+ switchport access vlan 2
+ switchport mode access
+ switchport voice vlan 3
+ spanning-tree portfast edge
+!
+interface GigabitEthernet1/0/4
+ description -> User
+ switchport access vlan 2
+ switchport mode access
+ switchport voice vlan 3
+ spanning-tree portfast edge
+!
+interface GigabitEthernet1/0/5
+ description -> User
+ switchport access vlan 2
+ switchport mode access
+ switchport voice vlan 3
+ spanning-tree portfast edge
+!
+interface GigabitEthernet1/0/6
+ description -> User
+ switchport access vlan 2
+ switchport mode access
+ switchport voice vlan 3
+ spanning-tree portfast edge
+!
+interface GigabitEthernet1/0/7
+ description -> User
+ switchport access vlan 2
+ switchport mode access
+ switchport voice vlan 3
+ spanning-tree portfast edge
+!
+interface GigabitEthernet1/0/8
+ description -> User
+ switchport access vlan 2
+ switchport mode access
+ switchport voice vlan 3
+ spanning-tree portfast edge
+!
+interface GigabitEthernet1/0/9
+ description -> User
+ switchport access vlan 2
+ switchport mode access
+ switchport voice vlan 3
+ spanning-tree portfast edge
+!
+interface GigabitEthernet1/0/10
+ description -> User
+ switchport access vlan 2
+ switchport mode access
+ switchport voice vlan 3
+ spanning-tree portfast edge
+!
+interface GigabitEthernet1/0/11
+ description -> User
+ switchport access vlan 2
+ switchport mode access
+ switchport voice vlan 3
+ spanning-tree portfast edge
+!
+interface GigabitEthernet1/0/12
+ description -> User
+ switchport access vlan 2
+ switchport mode access
+ switchport voice vlan 3
+ spanning-tree portfast edge
+!
+interface GigabitEthernet1/0/13
+ description -> User
+ switchport access vlan 2
+ switchport mode access
+ switchport voice vlan 3
+ spanning-tree portfast edge
+!
+interface GigabitEthernet1/0/14
+ description -> User
+ switchport access vlan 2
+ switchport mode access
+ switchport voice vlan 3
+ spanning-tree portfast edge
+!
+interface GigabitEthernet1/0/15
+ description -> User
+ switchport access vlan 2
+ switchport mode access
+ switchport voice vlan 3
+ spanning-tree portfast edge
+!
+interface GigabitEthernet1/0/16
+ description -> User
+ switchport access vlan 2
+ switchport mode access
+ switchport voice vlan 3
+ spanning-tree portfast edge
+!
+interface GigabitEthernet1/0/17
+ description -> User
+ switchport access vlan 2
+ switchport mode access
+ switchport voice vlan 3
+ spanning-tree portfast edge
+!
+interface GigabitEthernet1/0/18
+ description -> User
+ switchport access vlan 2
+ switchport mode access
+ switchport voice vlan 3
+ spanning-tree portfast edge
+!
+interface GigabitEthernet1/0/19
+ description -> User
+ switchport access vlan 2
+ switchport mode access
+ switchport voice vlan 3
+ spanning-tree portfast edge
+!
+interface GigabitEthernet1/0/20
+ description -> User
+ switchport access vlan 2
+ switchport mode access
+ switchport voice vlan 3
+ spanning-tree portfast edge
+!
+interface GigabitEthernet1/0/21
+ description -> User
+ switchport access vlan 2
+ switchport mode access
+ switchport voice vlan 3
+ spanning-tree portfast edge
+!
+interface GigabitEthernet1/0/22
+ description Ciena Lab Mgmt
+ switchport access vlan 5
+ switchport mode access
+ switchport voice vlan 3
+ spanning-tree portfast edge
+!
+interface GigabitEthernet1/0/23
+ description Ciena Lab Mgmt
+ switchport access vlan 5
+ switchport mode access
+ switchport voice vlan 3
+ spanning-tree portfast edge
+!
+interface GigabitEthernet1/0/24
+ description -> AP Suite-120-South
+ switchport trunk allowed vlan 10,500
+ switchport trunk native vlan 10
+ switchport mode trunk
+ spanning-tree portfast edge trunk
+!
+interface GigabitEthernet1/0/25
+ description -> Sw01 (Suite120) Trunk Uplink
+ switchport mode trunk
+!
+interface GigabitEthernet1/0/26
+!
+interface TenGigabitEthernet1/0/1
+ description -> Sw01 (Suite120) Trunk Uplink
+ switchport mode trunk
+!
+interface TenGigabitEthernet1/0/2
+ switchport access vlan 999
+ switchport mode access
+ spanning-tree portfast edge
+!
+interface Vlan1
+ no ip address
+ shutdown
+!
+interface Vlan2
+ ip address 172.31.2.244 255.255.255.0
+ no ip proxy-arp
+!
+interface Vlan5
+ ip address 172.31.5.12 255.255.255.0
+ no ip redirects
+ no ip proxy-arp
+!
+interface Vlan69
+ ip address 10.169.169.1 255.255.255.0
+!
+ip default-gateway 172.31.5.1
+!
+no ip http server
+no ip http secure-server
+ip ssh time-out 30
+ip ssh authentication-retries 5
+ip ssh version 2
+ip scp server enable
+!
+logging source-interface Vlan5
+logging host 10.10.56.33
+logging host 10.10.30.69
+!
+!
+snmp-server group v3group v3 priv 
+tacacs server HT-ISE-01
+ address ipv4 10.10.22.23
+ key 7 122D0D4601455D516403106907140132242542
+tacacs server HT-ISE-02
+ address ipv4 10.10.22.24
+ key 7 00301B5717155A534109780F3D38263631384D
+!
+!
+banner login ^C
+***************************************************************************
+*                         L E G A L   N O T I C E                         *
+***************************************************************************
+*                                                                         *
+*     You must have explicit permission to access or configure this       *
+*      device.  All activities performed on this device are logged and    *
+*     violations of this policy may result in criminal prosecution.       *
+*                                                                         *
+***************************************************************************
+*                                                                         *
+* This system is for the use of authorized users only. Individuals using  *
+*this computer system without authority, or in excess of their authority, *
+* are subject to having all of their activities on this system monitored  *
+* and recorded by system personnel.                                       *
+*                                                                         *
+*                                                                         *
+*                                                                         *
+*  Anyone using this system expressly consents to such monitoring and is  *
+* advised that if such monitoring reveals possible evidence of criminal   *
+* activity, system personnel may provide the evidence of such monitoring  *
+* to law enforcement officials.                                           *
+*                                                                         *
+***************************************************************************
+*         UNAUTHORIZED ACCESS TO THIS NETWORK DEVICE IS PROHIBITED        *
+***************************************************************************
+^C
+!
+line con 0
+ exec-timeout 5 0
+ logging synchronous
+ transport output telnet ssh
+line vty 0 4
+ logging synchronous
+ transport input telnet ssh
+ transport output telnet ssh
+line vty 5 15
+ logging synchronous
+ transport input telnet ssh
+ transport output telnet ssh
+!
+ntp server 132.163.97.1
+ntp server 132.163.97.2
+ntp server 192.43.244.18
+ntp server 108.61.56.35 minpoll 10
+ntp server 104.131.53.252 minpoll 10
+ntp server 129.6.15.28
+!
+end
