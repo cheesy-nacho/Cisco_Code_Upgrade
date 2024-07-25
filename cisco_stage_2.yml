@@ -20,7 +20,7 @@
     ios_size_kb: 26787 # Must be defined in kb
     target_image: c2960x-universalk9-mz.152-7.E7.bin
     flash_dir: 'flash:' # e.g: 'bootflash' or 'flash:'
-    switch_model: WS-C2960X
+    switch_model: WS-C2970X
   
   tasks:
 
