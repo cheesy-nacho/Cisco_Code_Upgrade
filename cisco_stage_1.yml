@@ -13,8 +13,6 @@
     cli:
       username: "{{ username }}"
       password: "{{ password }}"
-  collections:
-    name: awx.awx 
 
   tasks:
 # Grab date, time, and hostname
