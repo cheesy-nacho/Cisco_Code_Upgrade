@@ -9,10 +9,12 @@
   vars_files:
     - vault.yml
   vars:
-    #ansible_network_cli_ssh_type: libssh
+    ansible_network_cli_ssh_type: libssh
     cli:
       username: "{{ username }}"
       password: "{{ password }}"
+  collections:
+    name: awx.awx 
 
   tasks:
 # Grab date, time, and hostname
