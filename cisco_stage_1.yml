@@ -9,7 +9,6 @@
   vars_files:
     - vault.yml
   vars:
-    ansible_python_interpreter: /usr/bin/python3
     ansible_network_cli_ssh_type: libssh
     cli:
       username: "{{ username }}"
