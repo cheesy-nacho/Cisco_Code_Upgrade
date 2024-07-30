@@ -1,3 +1,0 @@
-Failed Upgrade - Host: HT-HQPHX-MLCORESW11 - Version: 15.2(7)E7
-Failed Upgrade - Host: HT-HQPHX-MLCORESW02 - Version: 15.2(7)E7
-Failed Upgrade - Host: HT-HQPHX-MLCORESW01 - Version: 15.2(7)E7

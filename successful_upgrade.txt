@@ -1,2 +1,0 @@
-Successful Upgrade - Host: HT-HQPHX-MLCORESW02 - Version: 15.2(7)E7
-Successful Upgrade - Host: HT-HQPHX-MLCORESW01 - Version: 15.2(7)E7
