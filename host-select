@@ -1,0 +1,9 @@
+[office:vars]
+ansible_connection=ansible.netcommon.network_cli
+ansible_network_os=cisco.ios.ios
+ansible_become=yes
+ansible_become_method=enable
+
+[office]
+172.31.5.11 #Cisco 2960x 
+172.31.5.21 #Cisco 2960x
