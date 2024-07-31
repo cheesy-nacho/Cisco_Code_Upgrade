@@ -14,7 +14,7 @@
     cli:
       username: "{{ username }}"
       password: "{{ password }}"
-    upgrade_ios_version: 15.2(7)E10
+    upgrade_ios_version: 15.2(7)E7
     switch_model: WS-C2960X
   
   tasks:
