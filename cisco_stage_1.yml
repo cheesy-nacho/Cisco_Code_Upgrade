@@ -21,7 +21,6 @@
       register: date
 
     - name: Get current time
-
       local_action: command date +%H:%M
       register: time
 
@@ -40,7 +39,8 @@
         backup: true
         backup_options:
           filename: "{{ device_hostname.gathered.hostname }}-backup.txt"
-          dir_path: "/home/HT_Ansible_Demo/backups/{{ date.stdout }}-{{ time.stdout }}"
+          #dir_path: "/home/HT_Ansible_Demo/backups/{{ date.stdout }}-{{ time.stdout }}"
+          dir_path: "/home/HT_Ansible_Demo/backups/"
 
     - name: Back up status
       debug: msg="Backup complete"
