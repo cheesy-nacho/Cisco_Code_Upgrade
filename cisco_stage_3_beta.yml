@@ -1,6 +1,7 @@
 ---
 ## Reload switch if checks are met. Wait for reload and validate new version. 
 ## This is to replace cisco_stage_3
+## DO NOT RUN THIS! I made changes so running this will fail to prevent accidental reload of a switch. 
 
 - name: Begin Reload and Validation
   hosts: office1
