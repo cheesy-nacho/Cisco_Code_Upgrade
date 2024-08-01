@@ -34,7 +34,7 @@
     - block:
       - name: Check switch model
         debug:
-          msg: "Switch model: {{ version.ansible_facts.ansible_net_model }} -- Wrong switch model, skipping"
+          msg: "Switch model: {{ version.ansible_facts.ansible_net_model }} -- Wrong switch model - skipping host"
       - meta: end_host
       when: switch_model not in ansible_net_model
 
@@ -47,7 +47,7 @@
     - block:
       - name: Image is Upgraded
         debug:
-          msg: "Host: {{ device_hostname.gathered.hostname }} ---------  SUCCESS: Code Upgraded  --------- - Version: {{ version.ansible_facts.ansible_net_version }}"
+          msg: "Host: {{ device_hostname.gathered.hostname }} ----- SUCCESS: Code Upgraded ----- - Version: {{ version.ansible_facts.ansible_net_version }}"
       - lineinfile: 
           path: "/home/HT_Ansible_Demo/successful_upgrade.txt"
           regexp: "\\s{{ device_hostname.gathered.hostname }}$"
@@ -59,7 +59,7 @@
     - block:
       - name: Image is NOT Upgraded
         debug:
-          msg: "Host: {{ device_hostname.gathered.hostname }} !!!!!!!!!!!  WARNING: Code is NOT Upgraded  !!!!!!!!!!! - Version: {{ version.ansible_facts.ansible_net_version }}"
+          msg: "Host: {{ device_hostname.gathered.hostname }} !!!!! WARNING: Code is NOT Upgraded !!!!! - Version: {{ version.ansible_facts.ansible_net_version }}"
       - lineinfile: 
           path: "/home/HT_Ansible_Demo/failed_upgrade.txt"
           regexp: "\\s{{ device_hostname.gathered.hostname }}$"
