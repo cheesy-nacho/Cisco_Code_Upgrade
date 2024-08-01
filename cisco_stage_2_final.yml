@@ -36,7 +36,7 @@
       - block:
         - name: Check switch model
           debug:
-            msg: "Switch model: {{ version.ansible_facts.ansible_net_model }} -- Wrong switch model, skipping"
+            msg: "Switch model: {{ version.ansible_facts.ansible_net_model }} -- Wrong switch model - skipping host"
         - meta: end_host
         when: switch_model not in ansible_net_model
 
@@ -48,20 +48,20 @@
         - meta: end_host
         when: ansible_net_version == upgrade_ios_version
 
+## Check disk space. Place book will stop if there isn't sufficent disk space. 
+      - block:
+        - name: Check flash space for upload
+          debug:
+            msg: "Not enough space in device's flash - skipping host"
+        - meta: end_host
+        when:  ios_size_kb > ansible_net_filesystems_info['flash:'].spacefree_kb
+
 ## Is image present
       - name: Is Image present
         cisco.ios.ios_command:
           #commands: "dir {{ flash_dir }} | inc {{ target_image }}"
           commands: "dir all-filesystems | in {{ target_image }}" #testing if this is a better solution
         register: image_present
-
-## Check disk space. Place book will stop if there isn't sufficent disk space. 
-      - block:
-        - name: Check flash space for upload
-          debug:
-            msg: "There is not enough space left on the device's flash...stopping the upgrade!!!"
-        - meta: end_host
-        when:  ios_size_kb > ansible_net_filesystems_info['flash:'].spacefree_kb
 
 ## Enable SCP
       - name: Enable SCP on switch
@@ -70,7 +70,6 @@
             - ip scp server enable
         when: image_present.stdout[0] == ""
 
-     
 ## Check availability of flashs
       - name: Check availability of flash
         cisco.ios.ios_command:
@@ -170,7 +169,12 @@
         when:
           - "'flash4:' in flash_values.stdout[0]"                                          
 
-
+## Is image present
+      - name: Is Image present update
+        cisco.ios.ios_command:
+          #commands: "dir {{ flash_dir }} | inc {{ target_image }}"
+          commands: "dir all-filesystems | in {{ target_image }}" #testing if this is a better solution
+        register: image_present_update
 
 ## Validate MD5
       - name: Image MD5 Validation_1
@@ -184,7 +188,7 @@
           vars:
             ansible_command_timeout: 60
           register: image_validation_result_1
-          when: target_image in image_present.stdout[0]
+          when: target_image in image_present_update.stdout[0]
         when:
           - "'flash1:' in flash_values.stdout[0]"                          
 
@@ -200,7 +204,7 @@
           vars:
             ansible_command_timeout: 60
           register: image_validation_result_2
-          when: target_image in image_present.stdout[0]
+          when: target_image in image_present_update.stdout[0]
         when:
           - "'flash2:' in flash_values.stdout[0]"                                           
 
@@ -215,7 +219,7 @@
           vars:
             ansible_command_timeout: 60
           register: image_validation_result_3
-          when: target_image in image_present.stdout[0]
+          when: target_image in image_present_update.stdout[0]
         when:
           - "'flash3:' in flash_values.stdout[0]"                                          
 
@@ -230,7 +234,7 @@
           vars:
             ansible_command_timeout: 60
           register: image_validation_result_4
-          when: target_image in image_present.stdout[0]
+          when: target_image in image_present_update.stdout[0]
         when:
           - "'flash4:' in flash_values.stdout[0]" 
 
@@ -298,7 +302,7 @@
           lines:
             - boot system switch all {{ flash_dir }}/{{ target_image }}
           save_when: always
-        when: target_image in image_present.stdout[0]
+        when: target_image in image_present_update.stdout[0]
       - name: Boot var changed
         debug: 
           msg: " Boot var changed to - {{ target_image }}"
