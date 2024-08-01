@@ -182,7 +182,7 @@
             wait_for: 
               - result[0] contains =
           vars:
-            ansible_command_timeout: 40
+            ansible_command_timeout: 60
           register: image_validation_result_1
           when: target_image in image_present.stdout[0]
         when:
@@ -198,7 +198,7 @@
             wait_for: 
               - result[0] contains =
           vars:
-            ansible_command_timeout: 40
+            ansible_command_timeout: 60
           register: image_validation_result_2
           when: target_image in image_present.stdout[0]
         when:
@@ -213,7 +213,7 @@
             wait_for: 
               - result[0] contains =
           vars:
-            ansible_command_timeout: 40
+            ansible_command_timeout: 60
           register: image_validation_result_3
           when: target_image in image_present.stdout[0]
         when:
@@ -228,7 +228,7 @@
             wait_for: 
               - result[0] contains =
           vars:
-            ansible_command_timeout: 40
+            ansible_command_timeout: 60
           register: image_validation_result_4
           when: target_image in image_present.stdout[0]
         when:
@@ -299,5 +299,8 @@
             - boot system switch all {{ flash_dir }}/{{ target_image }}
           save_when: always
         when: target_image in image_present.stdout[0]
+      - name: Boot var changed
+        debug: 
+          msg: " Boot var changed to - {{ target_image }}"
 
 ...
