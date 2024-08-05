@@ -35,11 +35,11 @@
 # Show run, write to file, save file to folder
     - name: show run 
       cisco.ios.ios_config:
-        #save_when: always #Saves config, not sure if it applies at this step. 
+        save_when: always
         backup: true
         backup_options:
           filename: "{{ device_hostname.gathered.hostname }}-backup.txt"
-          #dir_path: "/home/HT_Ansible_Demo/backups/{{ date.stdout }}-{{ time.stdout }}"
+          #dir_path: "/home/HT_Ansible_Demo/backups/{{ date.stdout }}-{{ time.stdout }}" #Creates folder for configs. May be over kill. leaving out for now.
           dir_path: "/home/HT_Ansible_Demo/backups/"
 
     - name: Back up status
