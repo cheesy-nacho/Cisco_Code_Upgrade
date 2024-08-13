@@ -17,9 +17,9 @@
       password: "{{ password }}"
 ## Variables for new code
     upgrade_ios_version: 15.2(7)E10
+    target_image: c2960x-universalk9-mz.152-7.E7.bin
     ios_md5: 1b3781db619dcce6a2677628acc15439
     ios_size_kb: 26787 # Must be defined in kb
-    target_image: c2960x-universalk9-mz.152-7.E7.bin
     flash_dir: 'flash:' # e.g: 'bootflash' or 'flash:'
     switch_model: WS-C2960X
 
