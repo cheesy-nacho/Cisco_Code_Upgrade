@@ -19,12 +19,7 @@
   
   tasks:
 
-## Get current version
-    - name: Get hostname
-      cisco.ios.ios_hostname:
-        state: gathered
-      register: device_hostname
-
+## Gather switch facts
     - name: Check Code Version
       cisco.ios.ios_facts:
         gather_subset: min
@@ -41,17 +36,17 @@
 ## Print current version
     - name: Print Hostname and Version
       debug:
-        msg: "{{ device_hostname.gathered.hostname }} - {{ version.ansible_facts.ansible_net_version }}"
+        msg: "{{ version.ansible_facts.ansible_net_hostname }} - {{ version.ansible_facts.ansible_net_version }}"
 
 ## Write successful upgrade to file 
     - block:
       - name: Image is Upgraded
         debug:
-          msg: "Host: {{ device_hostname.gathered.hostname }} ----- SUCCESS: Code Upgraded ----- - Version: {{ version.ansible_facts.ansible_net_version }}"
+          msg: "Host: {{ version.ansible_facts.ansible_net_hostname }} ----- SUCCESS: Code Upgraded ----- - Version: {{ version.ansible_facts.ansible_net_version }}"
       - lineinfile: 
           path: "/home/HT_Ansible_Demo/successful_upgrade.txt"
-          regexp: "\\s{{ device_hostname.gathered.hostname }}$"
-          line: "Successful Upgrade - Host: {{ device_hostname.gathered.hostname }} - Version: {{ ansible_net_version }}"
+          regexp: "\\s{{ version.ansible_facts.ansible_net_hostname }}$"
+          line: "Successful Upgrade - Host: {{ version.ansible_facts.ansible_net_hostname }} - Version: {{ ansible_net_version }}"
         delegate_to: localhost
       when: ansible_net_version == upgrade_ios_version
 
@@ -59,11 +54,11 @@
     - block:
       - name: Image is NOT Upgraded
         debug:
-          msg: "Host: {{ device_hostname.gathered.hostname }} !!!!! WARNING: Code is NOT Upgraded !!!!! - Version: {{ version.ansible_facts.ansible_net_version }}"
+          msg: "Host: {{ version.ansible_facts.ansible_net_hostname }} !!!!! WARNING: Code is NOT Upgraded !!!!! - Version: {{ version.ansible_facts.ansible_net_version }}"
       - lineinfile: 
           path: "/home/HT_Ansible_Demo/failed_upgrade.txt"
-          regexp: "\\s{{ device_hostname.gathered.hostname }}$"
-          line: "Failed Upgrade - Host: {{ device_hostname.gathered.hostname }} - Version: {{ ansible_net_version }}"
+          regexp: "\\s{{ version.ansible_facts.ansible_net_hostname }}$"
+          line: "Failed Upgrade - Host: {{ version.ansible_facts.ansible_net_hostname }} - Version: {{ ansible_net_version }}"
         delegate_to: localhost
       when: ansible_net_version != upgrade_ios_version
 
