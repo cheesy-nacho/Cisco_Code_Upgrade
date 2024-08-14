@@ -59,8 +59,7 @@
 ## Is image present
       - name: Is Image present
         cisco.ios.ios_command:
-          #commands: "dir {{ flash_dir }} | inc {{ target_image }}"
-          commands: "dir all-filesystems | in {{ target_image }}" #testing if this is a better solution
+          commands: "dir all-filesystems | in {{ target_image }}"
         register: image_present
 
 ## Enable SCP
@@ -169,11 +168,11 @@
         when:
           - "'flash4:' in flash_values.stdout[0]"                                          
 
-## Is image present
+## Updated check if new image is present
       - name: Is Image present update
         cisco.ios.ios_command:
           #commands: "dir {{ flash_dir }} | inc {{ target_image }}"
-          commands: "dir all-filesystems | in {{ target_image }}" #testing if this is a better solution
+          commands: "dir all-filesystems | in {{ target_image }}" 
         register: image_present_update
 
 ## Validate MD5
@@ -223,7 +222,7 @@
         when:
           - "'flash3:' in flash_values.stdout[0]"                                          
 
-      - name: Image MD5 Validatio_4
+      - name: Image MD5 Validation_4
         block:
         - name: Check MD5 on flash4  
           cisco.ios.ios_command:
@@ -297,7 +296,7 @@
 
 
 ## Change the Boot Variable to the new image  
-      - name: Change Boot Variable to new image 
+      - name: Change Boot Variable to new image
         cisco.ios.ios_config:
           lines:
             - boot system switch all {{ flash_dir }}/{{ target_image }}
