@@ -78,7 +78,7 @@
       when: target_image not in image_present.stdout[0]
 
 
-## Reset connection and wait for switch to come back
+## Wait for switch to come back
     - name: Wait for device to come back online
       wait_for_connection:
         delay: 180
