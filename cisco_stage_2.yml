@@ -75,7 +75,7 @@
 ## Copy Image
     - name: Copy Image // This could take a few minutes.
       net_put: 
-        src: "/home/eislas/HT_Ansible_Demo/images/{{ target_image }}"
+        src: "/home/HT_Ansible_Demo/images/{{ target_image }}"
         dest: "flash:/{{ target_image }}"
       vars:
         ansible_command_timeout: 600
