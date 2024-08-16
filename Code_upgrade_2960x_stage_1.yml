@@ -1,0 +1,49 @@
+---
+# Ansible Playbook to backup config and write file to a folder
+
+- name: Begin Config Backup
+  hosts: office
+  connection: local
+  gather_facts: false
+  ignore_unreachable: true
+  vars_files:
+    - vault.yml
+  vars:
+    ansible_network_cli_ssh_type: libssh
+    cli:
+      username: "{{ username }}"
+      password: "{{ password }}"
+
+  tasks:
+# Grab date, time, and hostname
+    - name: Get current date
+      local_action: command date +%b-%d-%Y
+      register: date
+
+    - name: Get current time
+      local_action: command date +%H:%M
+      register: time
+
+    - name: Get hostname
+      cisco.ios.ios_hostname:
+        state: gathered
+      register: device_hostname
+    - name: Print hostname
+      debug:
+        msg: "{{ device_hostname.gathered.hostname }}"
+
+# Show run, write to file, save file to folder
+    - name: show run 
+      cisco.ios.ios_config:
+        save_when: always
+        backup: true
+        backup_options:
+          filename: "{{ device_hostname.gathered.hostname }}-backup.txt"
+          #dir_path: "/home/HT_Ansible_Demo/backups/{{ date.stdout }}-{{ time.stdout }}" #Creates folder for configs. May be over kill. leaving out for now.
+          dir_path: "/home/HT_Ansible_Demo/backups/"
+
+    - name: Back up status
+      debug: msg="Backup complete"
+
+...
+     
