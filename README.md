@@ -44,3 +44,44 @@ Code_upgrade_2960x_stage_3.yml - Reload & Verify
 	• Wait for reload
 		○ Gather new facts
                 ○ Write version result to file
+
+
+
+
+
+
+For Cisco C9300/C9500 IOS-XE
+Code_upgrade_9k_stage_1.yml - Config Backup  (if LM is not storing backups)
+	• Backup steps
+		○ Get date, time, and hostname
+		○ Show Run
+	• Write config output to file 
+	• Save file to folder with hostname as description
+Code_upgrade_9k_stage_2.yml - Clear old files, copy image
+	•  Image copy steps
+		○ Check switch model
+			§ If model does not match playbook will Stop/Skip host
+			§ If model matches proceed with playbook
+		○ Check version
+			§ If version is already upgraded playbook will Stop/Skip host
+			§ If not, proceed with playbook
+		○ Remove unused image files
+		○ Copy file via ftp or scp 
+		○ Verify MD5
+			§ If MD5 is invalid playbook will Stop/Skip host
+			• If MD5 is valid proceed with playbook
+				• Save Config
+Code_upgrade_9k_stage_3.yml - Reload & Verify
+	• Install/Reload checks
+	• Check model
+		§ If model does not match playbook will Stop/Skip host
+		§ If model matches proceed with playbook
+	• Check version
+		§ If version is already upgraded playbook will Stop/Skip host
+		§ If not, proceed with playbook
+	• Run install command (will copy image to all switches in stack)
+		○ Execute reload
+		○ Wait for reload
+	• Validation check if switch is running new image
+                ○ Write version result to file
+
