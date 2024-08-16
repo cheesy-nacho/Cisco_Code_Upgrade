@@ -1,0 +1,111 @@
+---
+
+## Ansible playbook to clear room in flash, copy image, validate MF5, and save config 
+## Built for Cisco 9k's
+
+
+- name: Begin Code Upload
+  hosts: office
+  connection: local
+  gather_facts: false
+  ignore_unreachable: true
+  vars_files:
+    - vault.yml
+  vars:
+    ansible_network_cli_ssh_type: libssh
+    cli:
+      username: "{{ username }}"
+      password: "{{ password }}"
+## Variables for new code
+    ftp_ip: 10.1.1.1  #Where bin is located
+    upgrade_ios_version: 17.06.05
+    ios_md5: 1b3781db619dcce6a2677628acc15439
+    target_image: "cat9k_iosxe.{{ upgrade_ios_version }}.SPA.bin"
+    flash_dir: 'flash:' # e.g: 'bootflash' or 'flash:'
+    switch_model: C9300
+
+## Gather switch facts
+  tasks:
+    - name: Gather facts
+      cisco.nxos.nxos_facts:
+        gather_subset: hardware
+      register: facts_output
+    
+## Check hardware model
+    - block:
+      - name: Check switch model
+        debug:
+          msg: "Switch model: {{ facts_output.ansible_facts.ansible_net_model }} -- Wrong switch model, skipping host"
+      - meta: end_host
+      when: switch_model not in ansible_net_model
+
+## Print current version
+    - name: print output
+      debug:
+        msg: "Current Version is {{ facts_output['ansible_facts']['ansible_net_version'] }}"
+
+## Check if switch is already upgraded 
+    - block:
+      - name: Check if switch is already upgraded
+        debug:
+          msg: "Current version: {{ facts_output.ansible_facts.ansible_net_version }} -- Switch is already upgraded"
+      - meta: end_host
+      when: ansible_net_version == upgrade_ios_version
+  
+## Remove old files in flash
+    - name: Remove old unused image files
+      block:
+      - name: Check for old files and remove them if found
+        cisco.nxos.nxos_command:
+          commands:
+            - command: 'install remove inactive'
+              prompt: 
+                - 'Do you want to remove the above files\? \[y/n\]'
+              answer:
+                - 'y'
+        register: install_remove_output
+        vars:
+          ansible_command_timeout: 600
+
+    - name: Display install_remove output and result
+      debug:
+        msg: "{{ 'No old files found. Nothing to clean.' if 'SUCCESS: No extra package or provisioning files found on media' in install_remove_output.stdout[0] else 'Old files removed successfully.' }}"
+      
+## Copy image to switch via FTP, can be changed to other protocols
+    - name: Copy IOS image via FTP
+      cisco.nxos.nxos_command:
+        commands:
+          - command: "copy ftp://{{ ftp_username }}:{{ ftp_password }}@{{ ftp_ip }}/{{ target_image }} flash:{{ target_image }} vrf Mgmt-vrf"  ## VRF need will vary
+            prompt:
+              - 'Destination filename [{{ target_image }}]?'
+            answer:
+              - "\r"
+      vars:
+        ansible_command_timeout: 900
+
+## Verify MD5
+    - name: Image MD5 File Validation
+      cisco.nxos.nxos_command:
+        commands: 
+          - "verify /md5 {{ flash_dir }}{{ target_image }}"
+        wait_for: 
+          - result[0] contains =
+      vars:
+        ansible_command_timeout: 40
+      register: image_validation_result
+
+## Debug for MD5 validation and save config
+    - name: MD5 Validation Valid
+      cisco.nxos.nxos_config:
+      debug:
+        msg: "MD5 Is valid"
+        save_when: always
+      when: image_validation_result.stdout[0].split(' = ')[1] == ios_md5
+
+    - block:
+      - name: MD5 Invalid
+        debug:
+          msg: "MD5 is Invalid, Stopping upgrade !!"
+      - meta: end_host
+      when: image_validation_result.stdout[0].split(' = ')[1] != ios_md5
+  when: upgrade_ios_version != facts_output['ansible_facts']['ansible_net_version']

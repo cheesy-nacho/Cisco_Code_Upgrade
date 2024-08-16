@@ -1,0 +1,112 @@
+---
+
+## Ansible playbook to run install command, reload, and validate version after reload
+## Built for Cisco 9k's
+
+
+- name: Begin Code Install
+  hosts: office
+  connection: local
+  gather_facts: false
+  vars_files:
+    - vault.yml
+  vars:
+    ansible_network_cli_ssh_type: libssh
+    cli:
+      username: "{{ username }}"
+      password: "{{ password }}"
+## Variables for new code
+    upgrade_ios_version: 17.06.05
+    target_image: "cat9k_iosxe.{{ new_version }}.SPA.bin"
+    switch_model: C9300
+
+  tasks:
+## Get switch hostame
+    - name: Get hostname
+      cisco.nxos.nxos_hostname:
+        state: gathered
+      register: device_hostname
+
+## Gather switch facts
+    - name: Gather facts
+      cisco.nxos.nxos_facts:
+        gather_subset: hardware
+      register: facts_output
+    
+## Check hardware model
+    - block:
+      - name: Check switch model
+        debug:
+          msg: "Switch model: {{ facts_output.ansible_facts.ansible_net_model }} -- Wrong switch model - skipping host"
+      - meta: end_host
+      when: switch_model not in ansible_net_model
+
+#Print current version
+    - name: print output
+      debug:
+        msg: "Current Version is {{ facts_output['ansible_facts']['ansible_net_version'] }}"
+        
+## Check if switch is already upgraded 
+    - block:
+      - name: Check if switch is already upgraded
+        debug:
+          msg: "Current version: {{ facts_output.ansible_facts.ansible_net_version }} -- Switch is already upgraded"
+      - meta: end_host
+      when: ansible_net_version == upgrade_ios_version
+  
+## Run install command to copy image to other swithces in stack and execute upgrade/reload
+    - name: Run Install and reload
+      block:
+      - name: Install and activate new IOS image
+        cisco.nxos.nxos_command:
+          commands:
+            - command: 'install add file flash:{{ target_image }} activate commit'
+              prompt: 
+                - 'This operation may require a reload of the system. Do you want to proceed\? \[y/n\]'
+              answer: 
+                - 'y'
+        register: install_activate_output
+        vars:
+          ansible_command_timeout: 1200
+
+    - debug:
+        var: install_activate_output.stdout_lines
+
+    - name: Wait for switch to reboot and become reachable
+      wait_for_connection:
+        delay: 180
+        sleep: 60
+        timeout: 900
+ ## Gather version after reload     
+    - name: Gather new facts
+      cisco.nxos.nxos_facts:
+        gather_subset: hardware
+      register: facts_output_new
+
+## Write successful upgrade to file 
+    - block:
+      - name: Image is Upgraded
+        debug:
+          msg: "Host: {{ device_hostname.gathered.hostname }} -----  SUCCESS: Code Upgraded  ----- - Version: {{ facts_output_new.ansible_facts.ansible_net_version }}"
+      - lineinfile: 
+          path: "/home/eislas/HT_Ansible_Demo/successful_upgrade.txt"
+          regexp: "\\s{{ device_hostname.gathered.hostname }}$"
+          line: "Successful Upgrade - Host: {{ device_hostname.gathered.hostname }} - Version: {{ ansible_net_version }}"
+        delegate_to: localhost
+      when: ansible_net_version == upgrade_ios_version
+
+## Write unsuccessful upgrade to file
+    - block:
+      - name: Image is NOT Upgraded
+        debug:
+          msg: "Host: {{ device_hostname.gathered.hostname }} !!!!!  WARNING: Code is NOT Upgraded  !!!!! - Version: {{ facts_output_new.ansible_facts.ansible_net_version }}"
+      - lineinfile: 
+          path: "/home/eislas/HT_Ansible_Demo/failed_upgrade.txt"
+          regexp: "\\s{{ device_hostname.gathered.hostname }}$"
+          line: "Failed Upgrade - Host: {{ device_hostname.gathered.hostname }} - Version: {{ ansible_net_version }}"
+        delegate_to: localhost
+      when: ansible_net_version != upgrade_ios_version
+      
+  when: upgrade_ios_version != facts_output['ansible_facts']['ansible_net_version']
+
+...
