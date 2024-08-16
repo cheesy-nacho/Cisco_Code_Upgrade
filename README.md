@@ -44,4 +44,4 @@ Ansible - Cisco_Stage_3 - Reload & Verify
 	• Wait for reload
 		○ Gather new facts
 	• Validation check if switch is running new image
-Write version result to file![image](https://github.com/user-attachments/assets/99ac4fb0-9b8f-4876-a470-18119baf10bc)
+                ○ Write version result to file
