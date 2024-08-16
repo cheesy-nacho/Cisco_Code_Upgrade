@@ -1,12 +1,12 @@
 ```
 For Cisco C2960x
-Ansible-Cisco_Stage_1 - Config Backup  (if LM is not storing backups)
+Code_upgrade_2960x_stage_1.yml - Config Backup  (if LM is not storing backups)
 	• Backup steps
 		○ Get date, time, and hostname
 		○ Show Run
 	• Write config output to file 
 	• Save file to folder with hostname as description
-Ansible-Cisco_Stage_2 - Upload Image
+Code_upgrade_2960x_stage_2.yml - Upload Image
 	•  Image copy steps
 		○ Check switch model
 			§ If model does not match playbook will Stop/Skip host
@@ -31,7 +31,7 @@ Ansible-Cisco_Stage_2 - Upload Image
 				□ If MD5 is valid proceed with playbook
 		○ Change boot variable to new image
 			§ Save config 
-Ansible - Cisco_Stage_3 - Reload & Verify
+Code_upgrade_2960x_stage_3.yml - Reload & Verify
 	• Reload checks
 		○ Check model
 			§ If model does not match playbook will Stop/Skip host
@@ -43,5 +43,4 @@ Ansible - Cisco_Stage_3 - Reload & Verify
 		○ If new image present and boot var set then proceed with reload
 	• Wait for reload
 		○ Gather new facts
-	• Validation check if switch is running new image
                 ○ Write version result to file
