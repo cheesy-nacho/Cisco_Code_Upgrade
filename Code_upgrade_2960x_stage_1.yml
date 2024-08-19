@@ -5,6 +5,7 @@
   hosts: office
   connection: local
   gather_facts: false
+  strategy: free
   ignore_unreachable: true
   vars_files:
     - vault.yml
@@ -40,7 +41,7 @@
         backup_options:
           filename: "{{ device_hostname.gathered.hostname }}-backup.txt"
           #dir_path: "/home/HT_Ansible_Demo/backups/{{ date.stdout }}-{{ time.stdout }}" #Creates folder for configs. May be over kill. leaving out for now.
-          dir_path: "/home/HT_Ansible_Demo/backups/"
+          dir_path: "/home/HT_Ansible_Demo/Config_Backups/"
 
     - name: Back up status
       debug: msg="Backup complete"
