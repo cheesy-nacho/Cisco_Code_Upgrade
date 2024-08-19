@@ -1,5 +1,5 @@
-```
 For Cisco C2960x
+```
 Code_upgrade_2960x_stage_1.yml - Config Backup  (if LM is not storing backups)
 	• Backup steps
 		○ Get date, time, and hostname
@@ -44,13 +44,14 @@ Code_upgrade_2960x_stage_3.yml - Reload & Verify
 	• Wait for reload
 		○ Gather new facts
                 ○ Write version result to file
-
+```
 
 
 
 
 
 For Cisco C9300/C9500 IOS-XE
+```
 Code_upgrade_9k_stage_1.yml - Config Backup  (if LM is not storing backups)
 	• Backup steps
 		○ Get date, time, and hostname
