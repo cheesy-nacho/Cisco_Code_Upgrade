@@ -21,7 +21,7 @@
     ios_md5: 1b3781db619dcce6a2677628acc15439
     ios_size_kb: 26787 # Must be defined in kb
     flash_dir: 'flash:' # e.g: 'bootflash' or 'flash:'
-    switch_model: WS-C2960X
+    switch_model: WS-C2960X  #add for longer match
 
   
   tasks:

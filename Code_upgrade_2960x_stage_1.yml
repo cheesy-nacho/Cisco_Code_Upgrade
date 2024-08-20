@@ -16,14 +16,6 @@
       password: "{{ password }}"
 
   tasks:
-# Grab date, time for backup info. Leaving out for now. 
-#    - name: Get current date
-#      local_action: command date +%b-%d-%Y
-#      register: date
-
-#    - name: Get current time
-#      local_action: command date +%H:%M
-#      register: time
 
     - name: Get hostname
       cisco.ios.ios_hostname:
@@ -41,7 +33,6 @@
         backup: true
         backup_options:
           filename: "{{ device_hostname.gathered.hostname }}-backup.txt"
-          #dir_path: "/home/HT_Ansible_Demo/backups/{{ date.stdout }}-{{ time.stdout }}" #Creates folder for configs. May be over kill. leaving out for now.
           dir_path: "/home/HT_Ansible_Demo/Config_Backups/"
 
     - name: Back up status
