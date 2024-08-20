@@ -14,7 +14,7 @@
     cli:
       username: "{{ username }}"
       password: "{{ password }}"
-    upgrade_ios_version: 15.2(7)E7
+    upgrade_ios_version: 15.2(7)E6
     switch_model: WS-C2960X
   
   tasks:
@@ -33,10 +33,13 @@
       - meta: end_host
       when: switch_model not in ansible_net_model
 
-## Print current version
-    - name: Print Hostname and Version
-      debug:
-        msg: "{{ version.ansible_facts.ansible_net_hostname }} - {{ version.ansible_facts.ansible_net_version }}"
+## Check if switch is already upgraded 
+    - block:
+      - name: Check if switch is already upgraded
+        debug:
+          msg: "Current version: {{ version.ansible_facts.ansible_net_version }} -- Switch is already upgraded - skipping host"
+      - meta: end_host
+      when: ansible_net_version == upgrade_ios_version
 
 ## Write successful upgrade to file 
     - block:

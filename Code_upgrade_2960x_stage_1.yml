@@ -16,19 +16,20 @@
       password: "{{ password }}"
 
   tasks:
-# Grab date, time, and hostname
-    - name: Get current date
-      local_action: command date +%b-%d-%Y
-      register: date
+# Grab date, time for backup info. Leaving out for now. 
+#    - name: Get current date
+#      local_action: command date +%b-%d-%Y
+#      register: date
 
-    - name: Get current time
-      local_action: command date +%H:%M
-      register: time
+#    - name: Get current time
+#      local_action: command date +%H:%M
+#      register: time
 
     - name: Get hostname
       cisco.ios.ios_hostname:
         state: gathered
       register: device_hostname
+
     - name: Print hostname
       debug:
         msg: "{{ device_hostname.gathered.hostname }}"

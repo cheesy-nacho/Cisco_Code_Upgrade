@@ -14,6 +14,7 @@
     cli:
       username: "{{ username }}"
       password: "{{ password }}"
+      
 ## Variables for new code
     upgrade_ios_version: 15.2(7)E10
     target_image: c2960x-universalk9-mz.152-7.E7.bin
