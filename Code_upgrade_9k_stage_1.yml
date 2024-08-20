@@ -39,8 +39,8 @@
         backup: true
         backup_options:
           filename: "{{ device_hostname.gathered.hostname }}-backup.txt"
-          #dir_path: "/home/eislas/HT_Ansible_Demo/backups/{{ date.stdout }}-{{ time.stdout }}" #May not be neccessary to create folder for each backup executed. 
-
+          #dir_path: "/home/HT_Ansible_Demo/backups//{{ date.stdout }}-{{ time.stdout }}" #May not be neccessary to create folder for each backup executed. 
+          dir_path: "/home/HT_Ansible_Demo/Config_Backups/"
     - name: All done backing up
       debug: msg="Config backed up succesfully"
 
