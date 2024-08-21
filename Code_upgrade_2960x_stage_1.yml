@@ -5,7 +5,6 @@
   hosts: office
   connection: local
   gather_facts: false
-  strategy: free
   ignore_unreachable: true
   vars_files:
     - vault.yml
