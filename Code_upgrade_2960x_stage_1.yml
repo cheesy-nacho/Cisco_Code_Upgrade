@@ -27,7 +27,7 @@
         msg: "{{ device_hostname.gathered.hostname }}"
 
 # Show run, write to file, save file to folder
-    - name: show run 
+    - name: Backup Config 
       cisco.ios.ios_config:
         save_when: always
         backup: true
