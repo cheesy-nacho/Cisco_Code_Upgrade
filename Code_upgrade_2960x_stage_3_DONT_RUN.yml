@@ -51,7 +51,7 @@
 
 ## Validate boot var
     - name: Check boot path
-        ios_command:
+        cisco.ios.ios_command:
         commands: 'show boot | i BOOT'
       register: bootvar
 
