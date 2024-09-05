@@ -93,6 +93,7 @@
           regexp: "\\s{{ device_hostname.gathered.hostname }}$"
           line: "Successful Upgrade - Host: {{ device_hostname.gathered.hostname }} - Version: {{ ansible_net_version }}"
         delegate_to: localhost
+        throttle: 1
       when: ansible_net_version == upgrade_ios_version
 
 ## Write unsuccessful upgrade to file
@@ -105,6 +106,7 @@
           regexp: "\\s{{ device_hostname.gathered.hostname }}$"
           line: "Failed Upgrade - Host: {{ device_hostname.gathered.hostname }} - Version: {{ ansible_net_version }}"
         delegate_to: localhost
+        throttle: 1
       when: ansible_net_version != upgrade_ios_version
       
   when: upgrade_ios_version != facts_output['ansible_facts']['ansible_net_version']
