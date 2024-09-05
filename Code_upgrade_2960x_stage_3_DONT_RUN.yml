@@ -98,6 +98,7 @@
           regexp: "\\s{{ version.ansible_facts.ansible_net_hostname }}$"
           line: "Successful Upgrade - Host: {{ version.ansible_facts.ansible_net_hostname }} - Version: {{ ansible_net_version }}"
         delegate_to: localhost
+        throttle: 1
       when: ansible_net_version == upgrade_ios_version
 
 ## Write unsuccessful upgrade to file
@@ -110,6 +111,7 @@
           regexp: "\\s{{ version.ansible_facts.ansible_net_hostname }}$"
           line: "Failed Upgrade - Host: {{ version.ansible_facts.ansible_net_hostname }} - Version: {{ ansible_net_version }}"
         delegate_to: localhost
+        throttle: 1
       when: ansible_net_version != upgrade_ios_version
 
 ...
